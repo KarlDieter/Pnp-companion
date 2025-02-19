@@ -1,0 +1,15 @@
+#flexcontainer {
+	display: flex; /* Aktiviert Flexbox */
+	gap: 20px; /* Abstand zwischen den Elementen */
+}
+
+#characterStats, #characterInventory, #characterJournal {
+	flex: 1; /* Teilt den verfügbaren Platz gleichmäßig auf */
+	border: 1px solid #ccc; /* Optional: Rahmen für bessere Sichtbarkeit */
+	padding: 10px; /* Optional: Innenabstand */
+	box-sizing: border-box; /* Stellt sicher, dass Padding und Border berücksichtigt werden */
+}
+
+.journal-entry {
+		white-space: pre-wrap;
+}

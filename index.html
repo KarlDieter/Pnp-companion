@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>PnP Begleiter</title>
+	<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>PnP Begleiter</h1>
+    <button onclick="exportCharacter()">Exportieren</button>
+    <input type="file" id="fileInput" onchange="importCharacter(event)" />
+	<div id="flexcontainer">
+	<div id="characterStats">
+        <h2>Charakterstatistiken</h2>
+        <div id="statsContainer"></div>
+    </div>
+	<div id="characterInventory">
+		<h2>Charakterinventar</h2>
+		<div id="invContainer"></div>
+	</div>
+	<div id="characterJournal">
+		<h2>Journal</h2>
+		<div id="journalContainer"></div>
+	</div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
