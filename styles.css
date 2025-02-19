@@ -10,6 +10,70 @@
 	box-sizing: border-box; /* Stellt sicher, dass Padding und Border berücksichtigt werden */
 }
 
+button {
+    margin-top: 0px;
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+	transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+	filter: brightness(1.2);
+    transform: scale(1.05);
+}
+
+
+.stat, .item, .journal-date, .journal-entry {
+	border: 1px solid #ccc; /* Optional: Rahmen für bessere Sichtbarkeit */
+	padding: 10px; /* Optional: Innenabstand */
+	box-sizing: border-box; /* Stellt sicher, dass Padding und Border berücksichtigt werden */
+}
+
 .journal-entry {
 		white-space: pre-wrap;
+}
+
+.statElement {
+		display: flex; 
+		align-items: center; 
+		gap: 10px;
+}
+
+.statModIn {
+		width: 2em;
+}
+
+.statIncreaseBt {
+		width: 1em; 
+		height: 1em; 
+		padding: 0; 
+		line-height: 1;
+		font-size: 0.8em;
+}
+
+.statDecreaseBt {
+		width: 1em; 
+		height: 1em; 
+		padding: 0; 
+		line-height: 1;
+		font-size: 0.8em;
+		background-color: red;
+}
+
+.stat-bar-container {
+    background-color: #ddd;
+    height: 1em;
+    width: 10em;
+    border-radius: 1em;
+    overflow: hidden;
+    margin-left: 10px;
+}
+
+.stat-bar {
+    height: 100%;
+    background-color: #4caf50; /* Green color for HP/ Mana bar */
+    border-radius: 1em;
 }

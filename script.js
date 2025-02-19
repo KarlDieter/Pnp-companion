@@ -44,12 +44,32 @@
 			character.stats.forEach((stat, index) => {
 				const statElement = document.createElement("div");
 				statElement.className = "stat";
-				statElement.innerHTML = `
-					<strong>${stat.name}:</strong> ${stat.current} / ${stat.max}
-					<input type="text" class="statModIn" value="1"/>
-					<button class="statIncreaseBt" onclick="increaseStat(${index})">+</button>
-					<button class="statDecreaseBt" onclick="decreaseStat(${index})">-</button>
+				if (stat.max) {
+					statElement.innerHTML = `
+					<div class="statElement">
+						<span><strong>${stat.name}:</strong> ${stat.current} / ${stat.max}</span>
+					</div>
+					<div class="statElement">
+						<div class="stat-bar-container">
+							<div class="stat-bar" style="width: ${(stat.current / stat.max) * 100}%;"></div>
+						</div>
+						<input type="text" class="statModIn" value="1"/>
+						<div style="display: flex; flex-direction: column;">
+							<button class="statIncreaseBt" onclick="increaseStat(${index})">+</button>
+							<button class="statDecreaseBt" onclick="decreaseStat(${index})">-</button>
+						</div>
+						<button class="statDeleteBt" onclick="deleteStat(${index})">X</button>
+					</div>
 				`;
+
+				} else {
+					statElement.innerHTML = `
+						<strong>${stat.name}:</strong> ${stat.current}
+						<input type="text" class="statModIn" value="1"/>
+						<button class="statIncreaseBt" onclick="increaseStat(${index})">+</button>
+						<button class="statDecreaseBt" onclick="decreaseStat(${index})">-</button>
+				`;
+				}
 				statsContainer.appendChild(statElement);
 			});
 		}
@@ -145,6 +165,11 @@
 			alert("Bitte eine gültige Zahl eingeben.");
 		}
 	}
+	////////////////////////////
+	///
+	///ADD FUNCTIONS
+	///
+	////////////////////////////
 	
 	function addStat() {
 		const statName = prompt("Gib den Namen des neuen Attributs ein:");
@@ -175,4 +200,17 @@
 			character.journal.push({date: journalDate, entry: journalEntry});
 		}
 		displayCharacterJournal();
+	}
+	
+	
+	////////////////////////////
+	///
+	///REMOVE FUNCTIONS
+	///
+	////////////////////////////
+	
+	function deleteStat(index) {
+			character.stats.splice(index,1);
+			displayCharacterStats();
+	
 	}
