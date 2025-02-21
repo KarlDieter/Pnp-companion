@@ -1,79 +1,141 @@
+/* Flex container for character sections */
 #flexcontainer {
-	display: flex; /* Aktiviert Flexbox */
-	gap: 20px; /* Abstand zwischen den Elementen */
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    padding: 20px;
 }
 
-#characterStats, #characterInventory, #characterJournal {
-	flex: 1; /* Teilt den verfügbaren Platz gleichmäßig auf */
-	border: 1px solid #ccc; /* Optional: Rahmen für bessere Sichtbarkeit */
-	padding: 10px; /* Optional: Innenabstand */
-	box-sizing: border-box; /* Stellt sicher, dass Padding und Border berücksichtigt werden */
+/* Styling for individual section containers (Stats, Inventory, Journal) */
+#characterStats, #characterInventory, #characterJournal, .sectionname {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
 }
 
+/* Styling for each section container */
+.sectionContainer {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.sectionname h2 {
+    margin: 0;
+    padding-bottom: 10px;
+    font-size: 1.5em;
+    text-align: center;
+    color: #333;
+}
+
+/* Row 1: Name, current/max values, and buttons */
+.row1 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    width: 100%;
+}
+
+.elementName {
+    font-weight: bold;
+    font-size: 1.2em;
+    color: #333;
+}
+
+.elementCurrent {
+    font-size: 1.1em;
+    color: #444;
+}
+
+/* Button Styles */
 button {
     margin-top: 0px;
     background-color: #5cb85c;
     color: white;
     border: none;
-    padding: 8px;
+    padding: 8px 15px;
     cursor: pointer;
-	transition: all 0.2s ease-in-out;
+    transition: all 0.3s ease-in-out;
+    border-radius: 5px;
+    font-size: 1em;
 }
 
 button:hover {
-	filter: brightness(1.2);
+    background-color: #4cae4c;
     transform: scale(1.05);
 }
 
-
-.stat, .item, .journal-date, .journal-entry {
-	border: 1px solid #ccc; /* Optional: Rahmen für bessere Sichtbarkeit */
-	padding: 10px; /* Optional: Innenabstand */
-	box-sizing: border-box; /* Stellt sicher, dass Padding und Border berücksichtigt werden */
-}
-
-.journal-entry {
-		white-space: pre-wrap;
-}
-
-.statElement {
-		display: flex; 
-		align-items: center; 
-		gap: 10px;
-}
-
-.statModIn {
-		width: 2em;
-}
-
-.statIncreaseBt {
-		width: 1em; 
-		height: 1em; 
-		padding: 0; 
-		line-height: 1;
-		font-size: 0.8em;
-}
-
-.statDecreaseBt {
-		width: 1em; 
-		height: 1em; 
-		padding: 0; 
-		line-height: 1;
-		font-size: 0.8em;
-		background-color: red;
-}
-
+/* Status Bar Styles */
 .stat-bar-container {
-    background-color: #ddd;
-    height: 1em;
-    width: 10em;
-    border-radius: 1em;
+    margin-top: 10px;
+    width: 100%;
+    height: 12px;
+    background-color: #eee;
+    border-radius: 5px;
     overflow: hidden;
-    margin-left: 10px;
 }
 
 .stat-bar {
     height: 100%;
-    background-color: #4caf50; /* Green color for HP/ Mana bar */
-    border-radius: 1em;
+    background-color: #4caf50;
+    transition: width 0.2s ease-in-out;
+}
+
+/* Description text style */
+.elementDescription {
+    font-style: italic;
+    color: #555;
+    margin-top: 10px;
+}
+
+/* Edit Form Styling */
+.editForm {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    /* position: absolute;
+    z-index: 1000;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px; */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.edit-form-row {
+    display: flex;
+}
+
+
+/* Smaller modification buttons and better alignment */
+.modbuttons {
+    display: flex;
+    flex-direction: column; /* Stack the buttons vertically */
+    gap: 5px; /* Reduce space between the buttons */
+    align-items: flex-start; /* Align buttons to the left */
+}
+
+.statIncreaseBt, .statDecreaseBt {
+    width: 25px;  /* Reduce the width of the buttons */
+    height: 25px; /* Reduce the height */
+    font-size: 0.9em;  /* Slightly smaller text */
+    padding: 0;
+    line-height: 1;
+    background-color: #5cb85c; /* Green color */
+    border-radius: 5px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.statDecreaseBt, .deleteBt {
+    background-color: red; /* Red for decrease button */
+}
+
+.statIncreaseBt:hover, .statDecreaseBt:hover {
+    transform: scale(1.1); /* Slight hover effect */
 }
