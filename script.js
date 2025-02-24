@@ -1,27 +1,35 @@
 let character = {
-    name: "Held",
-    stats: [
-        { name: "Stärke", current: 10, max: 10, description: "Physische Kraft des Charakters." },
-        { name: "Mana", current: 5, max: 20 } // No description
-    ],
-    inventory: [
-        { name: "Schwert", description: "Ein scharfes Schwert für tapfere Krieger." },
+    name: "Dulf",
+    stats: {
+		name : "stats",
+		content: [
+        { name: "HP", current: 10, max: 32, description: "Physische Kraft des Charakters." },
+        { name: "SP", current: 0, max: 3 } // No description
+    ]},
+    inventory: {
+		name: "inventory",
+		content: [
+        { name: "Atem des Morbo", description: "Ein magischer Dolch, der doppelten Hinterhaltschaden verursacht." },
         { name: "Heiltrank", current: 1, max: 3, description: "Regeneriert 10 HP." }
-    ],
-    journal: [
+    ]},
+    journal: {
+		content: [
         { date: "2025-02-19", entry: "Abenteuer begonnen", description: "Der Held begann seine Reise." }
-    ]
+    ]}
 };
 
-displayCharacterSections(character);
+displayCharacterMain(character);
 
 function exportCharacter() {
+	if (character.image) {
+        character.image = character.image.replace(/(\r\n|\n|\r)/gm, ""); // Ensure single-line Base64
+    }
 	const dataStr = JSON.stringify(character, null, 2);
 	const blob = new Blob([dataStr], { type: "application/json" });
 	const url = URL.createObjectURL(blob);
 	const a = document.createElement("a");
 	a.href = url;
-	a.download = "character.json";
+	a.download = character.name + ".json";
 	a.click();
 	URL.revokeObjectURL(url);
 }
@@ -35,10 +43,10 @@ function importCharacter(event) {
 		const content = e.target.result;
 		character = JSON.parse(content);
 		console.log("Charakterdaten importiert:", character);
-		displayCharacterStats();
-		displayCharacterInventory();
+		displayCharacterMain(character);
 	};
 	reader.readAsText(file);
+	
 }
 
 function displayCharacterSections(character) {
@@ -46,12 +54,22 @@ function displayCharacterSections(character) {
 	flexContainer.innerHTML = ""; // Clear existing content
 
 	Object.keys(character).forEach((key) => {
-		if (Array.isArray(character[key])) { // Only process array sections
+		/* if (Array.isArray(character[key])) { // Only process array sections
+			displayCharacterSection(character[key], key);
+		 }*/
+		if (typeof character[key] === "object" && !Array.isArray(character[key]) && character[key] !== null) {
 			displayCharacterSection(character[key], key);
 		}
 	});
 }
 
+function displayCharacterMain(character) {
+		const characterContainer = document.getElementById("charactercontainer");
+		
+		makeHeadlineElement(characterContainer, character);
+		
+		displayCharacterSections(character);
+}
 
 function displayCharacterSection(section, sectionTitle = "Section") {
     const flexContainer = document.getElementById("flexcontainer");
@@ -59,126 +77,43 @@ function displayCharacterSection(section, sectionTitle = "Section") {
     const sectionName = document.createElement("div");
 
     sectionName.className = "sectionname";
-    sectionName.innerHTML = `<h2>${sectionTitle}</h2>`;
-	// Add Button next to the section name
-    const addButton = document.createElement("button");
-    addButton.innerText = "+ Add";
-    addButton.className = "addButton";
-    addButton.onclick = () => openEditForm(null, sectionTitle, -1, sectionContainer);
+	makeHeadlineElement(sectionName, section);
     
-    sectionName.appendChild(addButton);
     sectionContainer.className = "sectionContainer";
-
-    section.forEach((sectionElement, index) => {
-        const elementContainer = document.createElement("div");
-        elementContainer.className = "sectionelement";
-
-        // Row 1: Name, Current/Max Values, and Buttons
-        const row1 = document.createElement("div");
-        row1.className = "row1";
-
-        if ("name" in sectionElement) {
-            const elementName = document.createElement("span");
-            elementName.className = "elementName";
-            elementName.innerHTML = `<strong>${sectionElement.name}</strong>`;
-            row1.appendChild(elementName);
-        }
-
-        if ("current" in sectionElement) {
-            const elementCurrent = document.createElement("span");
-            elementCurrent.className = "elementCurrent";
-            elementCurrent.innerHTML = ` ${sectionElement.current} `;
-			if ("max" in sectionElement) {
-				elementCurrent.innerHTML = ` ${sectionElement.current} / ${sectionElement.max}`;	
-			}
-            row1.appendChild(elementCurrent);
-
-            // Create modification buttons
-            const modButtons = document.createElement("div");
-            modButtons.className = "modbuttons";
-			modButtons.innerHTML = `
-				<div style="display: flex; flex-direction: column;">
-					<button class="statIncreaseBt" onclick="increaseCurrent('${sectionTitle}', ${index})">+</button>
-					<button class="statDecreaseBt" onclick="decreaseCurrent('${sectionTitle}', ${index})">-</button>
-				</div>
-			`;
-
-            row1.appendChild(modButtons);
-        }
-		const editButton = document.createElement("button");
-		editButton.innerText = "Edit";
-		editButton.onclick = () => openEditForm(sectionElement, sectionTitle, index, row1);
-		row1.appendChild(editButton);
-        elementContainer.appendChild(row1);
-
-        // Row 2: Status Bar if applicable
-        if ("current" in sectionElement && "max" in sectionElement) {
-            const row2 = document.createElement("div");
-            row2.className = "row2";
-
-            const statBarContainer = document.createElement("div");
-            statBarContainer.className = "stat-bar-container";
-
-            const statBar = document.createElement("div");
-            statBar.className = "stat-bar";
-            statBar.style.width = `${(sectionElement.current / sectionElement.max) * 100}%`;
-
-            statBarContainer.appendChild(statBar);
-            row2.appendChild(statBarContainer);
-
-            elementContainer.appendChild(row2);
-        }
-
-        // Row 3: Description if available
-        if ("description" in sectionElement) {
-            const row3 = document.createElement("div");
-            row3.className = "row3";
-
-            const elementDescription = document.createElement("p");
-            elementDescription.className = "elementDescription";
-            elementDescription.innerText = sectionElement.description;
-
-            row3.appendChild(elementDescription);
-            elementContainer.appendChild(row3);
-        }
-
-        sectionContainer.appendChild(elementContainer);
-    });
+	makeContentElement(sectionContainer, section);
 
     sectionName.appendChild(sectionContainer);
     flexContainer.appendChild(sectionName);
 }
 
-function increaseCurrent(sectionName, index) {
-    let section = character[sectionName]; // Get the correct section array
+function increaseCurrent(item) {
 
-    if (!section || !section[index] || typeof section[index].current !== "number") {
-        console.error(`increaseCurrent: Invalid section or index - ${sectionName}[${index}]`);
+    if (!item  || typeof item.current !== "number") {
+        console.error(`increaseCurrent: Invalid section or index - ${item}]`);
         return;
     }
 
-    if ("max" in section[index] && section[index].current < section[index].max) {
-        section[index].current++;
-    } else if (!("max" in section[index])) {
-		section[index].current++;
+    if ("max" in item && item.current < item.max) {
+        item.current++;
+    } else if (!("max" in item)) {
+		item.current++;
 	}
 
-    displayCharacterSections(character); // Refresh UI
+    displayCharacterMain(character); // Refresh UI
 }
 
-function decreaseCurrent(sectionName, index) {
-    let section = character[sectionName]; // Get the correct section array
+function decreaseCurrent(item) {
 
-    if (!section || !section[index] || typeof section[index].current !== "number") {
-        console.error(`decreaseCurrent: Invalid section or index - ${sectionName}[${index}]`);
+    if (!item  || typeof item.current !== "number") {
+        console.error(`decreaseCurrent: Invalid section or index - ${item}]`);
         return;
     }
 
-    if (section[index].current > 0) {
-        section[index].current--;
+    if (item.current > 0) {
+        item.current--;
     }
 
-    displayCharacterSections(character); // Refresh UI
+    displayCharacterMain(character); // Refresh UI
 }
 
 
@@ -188,134 +123,324 @@ function closeEditForm(form) {
 }
 
 
-function openEditForm(sectionElement, sectionTitle, index, trigger) {
-    // Check if the form is already open for the element
-    if (trigger.parentNode.querySelector(".editForm")) {
-        return; // If already open, do nothing
-    }
-	
-	const isNew = sectionElement === undefined || sectionElement === null;
+function openEditForm(owner, sectionElement, isNew=false)   {
+    if (sectionElement.querySelector(".editForm")) return;
 
-    // Get the corresponding sectionElement data
-    if (sectionElement){const sectionElement = character[sectionTitle][index]};
-
-    // Create the pop-out form below the sectionElement
     const form = document.createElement("div");
-    form.className = "editForm";  // Style this to look like part of the section
+    form.className = "editForm";
 
-    form.innerHTML = `
-        
-        
-        <!-- Name -->
-		<div class="edit-form-row">
-		<input type="checkbox" id="nameCheckbox" ${isNew ? "" : sectionElement.name ? 'checked' : ''} />
-        <label for="name">Name:</label>
-        <input type="text" id="name" value="${isNew ? "" : sectionElement.name || ''}" />
-        
-		</div>
+    // Determine the parent object
+    let ownerparent = null;
+    Object.keys(character).forEach((key) => {
+        if (character[key].content && character[key].content.includes(owner)) {
+            ownerparent = character[key];
+        }
+    });
+	makeEditForm(form, owner, isNew, ownerparent);
 
-        <!-- Current -->
-		<div class="edit-form-row">
-		<input type="checkbox" id="currentCheckbox" ${isNew ? "" : sectionElement.current ? 'checked' : ''} />
-        <label for="current">Current:</label>
-        <input type="number" id="current" value="$isNew ? "" : {sectionElement.current || ''}" />
-        
-		</div>
-
-		<div class="edit-form-row">
-        <!-- Max -->
-		<input type="checkbox" id="maxCheckbox" ${isNew ? "" : sectionElement.max ? 'checked' : ''} />
-        <label for="max">Max:</label>
-        <input type="number" id="max" value="${isNew ? "" : sectionElement.max || ''}" />
-		</div>
-
-		<div class="edit-form-row">
-        <!-- Description -->
-		<input type="checkbox" id="descriptionCheckbox" ${isNew ? "" : sectionElement.description ? 'checked' : ''} />
-		<label for="description">Description:</label>
-        <textarea id="description">${isNew ? "" : sectionElement.description || ''}</textarea>     
-		</div>
-	
-        <button onclick="saveChanges('${sectionTitle}', ${index}, this.parentNode, ${isNew})">${isNew ? "Create" : "Save"}</button>
-        <button onclick="closeEditForm(this.parentNode)">Cancel</button>
-        ${!isNew ? `<button class="deleteBt" onclick="deleteAttribute('${sectionTitle}', ${index}, this)" style="background-color: #d9534f;">Delete</button>` : ""}
-    `;
 
 
     // Add the form directly below the sectionElement
     if (isNew) {
-        trigger.insertBefore(form, trigger.firstChild);
+        sectionElement.querySelector(".sectionelement").insertBefore(form, sectionElement.querySelector(".sectionelement").firstChild);
     } else {
-        trigger.appendChild(form);
+        sectionElement.after(form);
     }
 }
 
-function saveChanges(sectionTitle, index, trigger, isNew) {
-     let section = character[sectionTitle];
+function saveChanges(owner, form, isNew) {
+    let section = owner;
 
     if (isNew) {
         // Create a new object
         const newElement = {
-            name: document.getElementById("name").value,
-            current: parseInt(document.getElementById("current").value) || 0,
-            max: parseInt(document.getElementById("max").value) || 0,
-            description: document.getElementById("description").value
+            name: form.querySelector("#name")?.value || "", 
+            current: parseInt(form.querySelector("#current")?.value) || 0,
+            max: parseInt(form.querySelector("#max")?.value) || 0,
+            description: form.querySelector("#description")?.value || ""
         };
 
         // Add it to the character object
         section.push(newElement);
-		//section.insertBefore(newElement, section.firstChild);
     } else {
-		const sectionElement = character[sectionTitle][index];
+        const sectionElement = owner;
 
-		// Check the state of the checkboxes and update accordingly
-		const nameChecked = document.getElementById("nameCheckbox").checked;
-		const currentChecked = document.getElementById("currentCheckbox").checked;
-		const maxChecked = document.getElementById("maxCheckbox").checked;
-		const descriptionChecked = document.getElementById("descriptionCheckbox").checked;
+        // Only update the fields if they exist
+        const nameField = form.querySelector("#name");
+        if (nameField && nameField.value) {
+            sectionElement.name = nameField.value;
+        } else {
+            delete sectionElement.name;
+        }
 
-		// Update the character data only if the checkbox is checked
-		if (nameChecked) {
-			sectionElement.name = document.getElementById("name").value;
-		} else {
-			delete sectionElement.name; // Remove attribute if unchecked
-		}
+        const currentField = form.querySelector("#current");
+        if (currentField && currentField.value) {
+            sectionElement.current = parseInt(currentField.value);
+        } else {
+            delete sectionElement.current;
+        }
 
-		if (currentChecked) {
-			sectionElement.current = parseInt(document.getElementById("current").value);
-		} else {
-			delete sectionElement.current; // Remove attribute if unchecked
-		}
+        const maxField = form.querySelector("#max");
+        if (maxField && maxField.value) {
+            sectionElement.max = parseInt(maxField.value);
+        } else {
+            delete sectionElement.max;
+        }
 
-		if (maxChecked) {
-			sectionElement.max = parseInt(document.getElementById("max").value);
-		} else {
-			delete sectionElement.max; // Remove attribute if unchecked
-		}
+        const descField = form.querySelector("#description");
+        if (descField && descField.value) {
+            sectionElement.description = descField.value;
+        } else {
+            delete sectionElement.description;
+        }
+    }
 
-		if (descriptionChecked) {
-			sectionElement.description = document.getElementById("description").value;
-		} else {
-			delete sectionElement.description; // Remove attribute if unchecked
-		}
-	}
     // Close the form after saving
-    closeEditForm(trigger);
+    closeEditForm(form);  // Pass the `form` directly
 
     // Re-render the sections to reflect the updated data
     displayCharacterSections(character);
 }
 
-function deleteAttribute(sectionTitle, index, trigger) {
-    // Confirm the deletion action
-    if (confirm(`Are you sure you want to delete this ${sectionTitle} item?`)) {
-        // Remove the element from the section array
-        character[sectionTitle].splice(index, 1);
 
-        // Close the form after deletion
-        closeEditForm(trigger);
+function deleteAttribute(owner, form, ownerparent) {
+    if (!ownerparent || !Array.isArray(ownerparent.content)) {
+        console.error("deleteAttribute: Invalid ownerparent or missing content array.", ownerparent);
+        return;
+    }
 
-        // Re-render the sections to reflect the updated data
-        displayCharacterSections(character);
+    // Confirm deletion
+    if (confirm(`Are you sure you want to delete "${owner.name}"?`)) {
+        const index = ownerparent.content.indexOf(owner);
+        if (index !== -1) {
+            ownerparent.content.splice(index, 1);
+        } else {
+            console.error("deleteAttribute: Item not found in parent content.", owner);
+            return;
+        }
+
+        closeEditForm(form);
+        displayCharacterMain(character);
     }
 }
+function createBase64ImageUploader(container,owner) {
+    //const container = document.getElementById(containerId);
+    container.style.display = "flex";
+    container.style.justifyContent = "center";
+    container.style.alignItems = "center";
+    container.style.width = "200px";
+    container.style.height = "200px";
+    container.style.border = "2px dashed #ccc";
+    container.style.cursor = "pointer";
+    container.style.position = "relative";
+    container.style.overflow = "hidden";
+    
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*";
+    fileInput.style.display = "none";
+    
+    const button = document.createElement("div");
+    button.innerText = "+";
+    button.style.fontSize = "50px";
+    button.style.color = "#ccc";
+    button.style.position = "absolute";
+    button.style.top = "50%";
+    button.style.left = "50%";
+    button.style.transform = "translate(-50%, -50%)";
+    
+    const img = document.createElement("img");
+	img.id = "imgelement";
+    img.style.width = "100%";
+    img.style.height = "100%";
+    img.style.objectFit = "cover";
+    img.style.display = "none";
+	if (owner.image) {
+			img.src = owner.image;
+			img.style.display = "block";
+			button.style.display = "none";
+	}
+    
+    container.appendChild(button);
+    container.appendChild(fileInput);
+    container.appendChild(img);
+    
+    container.addEventListener("click", () => fileInput.click());
+    
+    fileInput.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                img.src = e.target.result;
+                img.style.display = "block";
+                button.style.display = "none";
+				owner.image = img.src;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+function makeHeadlineElement (caller, owner) {
+		const characterContainer = caller;
+		const characterHeadline = document.createElement("div");
+		const characterButtons = document.createElement("div");
+		const characterImage = document.createElement("div");
+		
+		characterContainer.innerHTML = ``;
+		
+		characterHeadline.innerHTML = `<h1>${owner.name? owner.name:"Nobody"}</h1>`;
+			characterButtons.innerHTML = `<button onclick="exportCharacter()">Exportieren</button>
+		<input type="file" id="fileInput" onchange="importCharacter(event)" />
+		`;
+		createBase64ImageUploader(characterImage,owner);
+		const addButton = document.createElement("button");
+		addButton.innerText = "+ Add";
+		addButton.className = "addButton";
+		addButton.onclick = () => openEditForm(owner.content,caller,true);
+		
+		
+		characterContainer.appendChild(characterHeadline);
+		characterHeadline.appendChild(characterImage);
+		if (owner==character) {characterHeadline.appendChild(characterButtons);}
+		if ("content" in owner) {characterHeadline.appendChild(addButton);}
+}
+
+function makeContentElement(sectionContainer, section) {
+
+    section.content.forEach((sectionElement) => {
+        const elementContainer = document.createElement("div");
+        elementContainer.className = "sectionelement";
+		makeContentItemElement(elementContainer, sectionElement);
+        sectionContainer.appendChild(elementContainer);
+    });
+}
+
+function makeContentItemElement (elementContainer, owner) {
+	const row1 = document.createElement("div");
+	row1.className = "row1";
+
+	if ("name" in owner) {
+		const elementName = document.createElement("span");
+		elementName.className = "elementName";
+		elementName.innerHTML = `<strong>${owner.name}</strong>`;
+		row1.appendChild(elementName);
+	}
+	
+	if ("current" in owner) {
+		const elementCurrent = document.createElement("span");
+		elementCurrent.className = "elementCurrent";
+		elementCurrent.innerHTML = ` ${owner.current} `;
+		if ("max" in owner) {
+			elementCurrent.innerHTML = ` ${owner.current} / ${owner.max}`;	
+		}
+		row1.appendChild(elementCurrent);
+
+		// Create modification buttons
+		const increaseButton = document.createElement("button");
+		increaseButton.className = "statIncreaseBt";
+		increaseButton.innerText = "+";
+		increaseButton.onclick = function () {
+			increaseCurrent(owner);
+		};
+
+		const decreaseButton = document.createElement("button");
+		decreaseButton.className = "statDecreaseBt";
+		decreaseButton.innerText = "-";
+		decreaseButton.onclick = function () {
+			decreaseCurrent(owner);
+		};
+
+		const modButtons = document.createElement("div");
+		modButtons.className = "modbuttons";
+		modButtons.appendChild(increaseButton);
+		modButtons.appendChild(decreaseButton);
+		row1.appendChild(modButtons);
+    }
+	const editButton = document.createElement("button");
+	editButton.innerText = "Edit";
+	editButton.onclick = () => openEditForm(owner, elementContainer);
+	row1.appendChild(editButton);
+	elementContainer.appendChild(row1);
+	
+	// Row 2: Status Bar if applicable
+	if ("current" in owner && "max" in owner) {
+		const row2 = document.createElement("div");
+		row2.className = "row2";
+
+		const statBarContainer = document.createElement("div");
+		statBarContainer.className = "stat-bar-container";
+
+		const statBar = document.createElement("div");
+		statBar.className = "stat-bar";
+		statBar.style.width = `${(owner.current / owner.max) * 100}%`;
+
+		statBarContainer.appendChild(statBar);
+		row2.appendChild(statBarContainer);
+
+		elementContainer.appendChild(row2);
+	}
+
+	// Row 3: Description if available
+	if ("description" in owner) {
+		const row3 = document.createElement("div");
+		row3.className = "row3";
+
+		const elementDescription = document.createElement("p");
+		elementDescription.className = "elementDescription";
+		elementDescription.innerText = owner.description;
+
+		row3.appendChild(elementDescription);
+		elementContainer.appendChild(row3);
+	}
+}
+
+function makeEditForm (form, owner, isNew=false, ownerparent = null) {
+	for (const key in isNew? owner[0] : owner) {
+		const formRow = document.createElement("div");
+		formRow.className = "edit-form-row";
+		
+		const rowLabel = document.createElement("label");
+		rowLabel.className = "form-row-label";
+		rowLabel.innerText = key;
+		rowLabel.htmlFor = key;
+		
+		let rowInput = document.createElement("input");
+		rowInput.className = "form-row-input";
+		if (["name"].includes(key)) {
+			rowInput.type="text";
+
+		} else if (["current","max"].includes(key)) {
+			rowInput.type = "number";
+		}else if (["description"].includes(key)) {
+			rowInput = document.createElement("textarea");
+		}
+		rowInput.id=key;
+		rowInput.name=key;
+		rowInput.value=owner[key];
+		
+		formRow.appendChild(rowLabel);
+		formRow.appendChild(rowInput);
+		form.appendChild(formRow);
+	}
+	const formButtons = document.createElement("div");
+	formButtons.className = "formbuttons";
+	const saveButton = document.createElement("button");
+	saveButton.className = "savebutton";
+	saveButton.onclick = () => saveChanges(owner, form, isNew);
+	saveButton.innerText =isNew? 'Add' : 'Save';
+	formButtons.appendChild(saveButton);
+	const closeButton = document.createElement("button");
+	closeButton.className = "closebutton";
+	closeButton.innerText = "Close";
+	closeButton.onclick = () => closeEditForm(form);
+	formButtons.appendChild(closeButton);
+	const deleteButton = document.createElement("button");
+	deleteButton.className = "deleteBt";
+	deleteButton.innerText = "Delete";
+	deleteButton.onclick = () => deleteAttribute(owner, form, ownerparent);
+	if (!isNew) {formButtons.appendChild(deleteButton)};
+	form.appendChild(formButtons);
+
+  }
