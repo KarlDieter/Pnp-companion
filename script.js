@@ -10,7 +10,7 @@ let character = {
 		name: "inventory",
 		content: [
         { name: "Atem des Morbo", description: "Ein magischer Dolch, der doppelten Hinterhaltschaden verursacht." },
-        { name: "Heiltrank", current: 1, max: 3, description: "Regeneriert 10 HP." }
+        { name: "Heiltrank", current: 1, max: 3, description: "Regeneriert 10 HP.", content : [{ name: "HP", current: 10, max: 32, description: "Physische Kraft des Charakters." }] }
     ]},
     journal: {
 		content: [
@@ -228,8 +228,8 @@ function createBase64ImageUploader(container,owner) {
     container.style.display = "flex";
     container.style.justifyContent = "center";
     container.style.alignItems = "center";
-    container.style.width = "200px";
-    container.style.height = "200px";
+    container.style.aspectRatio = "1";
+    container.style.height = "100px";
     container.style.border = "2px dashed #ccc";
     container.style.cursor = "pointer";
     container.style.position = "relative";
@@ -287,28 +287,36 @@ function makeHeadlineElement (caller, owner) {
 		const characterHeadline = document.createElement("div");
 		const characterButtons = document.createElement("div");
 		const characterImage = document.createElement("div");
+		characterContainer.className="charactercontainer";
+		characterHeadline.className = "characterheadline";
 		
 		characterContainer.innerHTML = ``;
 		
 		characterHeadline.innerHTML = `<h1>${owner.name? owner.name:"Nobody"}</h1>`;
-			characterButtons.innerHTML = `<button onclick="exportCharacter()">Exportieren</button>
+		characterButtons.innerHTML = `<button onclick="exportCharacter()">Exportieren</button>
 		<input type="file" id="fileInput" onchange="importCharacter(event)" />
 		`;
 		createBase64ImageUploader(characterImage,owner);
-		const addButton = document.createElement("button");
-		addButton.innerText = "+ Add";
-		addButton.className = "addButton";
-		addButton.onclick = () => openEditForm(owner.content,caller,true);
-		
 		
 		characterContainer.appendChild(characterHeadline);
-		characterHeadline.appendChild(characterImage);
+		characterHeadline.insertBefore(characterImage,characterHeadline.firstChild);
 		if (owner==character) {characterHeadline.appendChild(characterButtons);}
-		if ("content" in owner) {characterHeadline.appendChild(addButton);}
 }
 
 function makeContentElement(sectionContainer, section) {
-
+	const contentButtons = document.createElement("div");
+	const addButton = document.createElement("button");
+	const hideButton = document.createElement("button");
+	contentButtons.className = "contentbuttons";
+	addButton.innerText = "+ Add";
+	addButton.className = "addButton";
+	addButton.onclick = () => openEditForm(section.content,sectionContainer,true);
+	hideButton.className = "hidebutton";
+	hideButton.innerText = ">";
+	hideButton.onclick = () => hideShowContent(sectionContainer);
+	contentButtons.appendChild(addButton);
+	contentButtons.appendChild(hideButton);
+	sectionContainer.appendChild(contentButtons);
     section.content.forEach((sectionElement) => {
         const elementContainer = document.createElement("div");
         elementContainer.className = "sectionelement";
@@ -394,6 +402,13 @@ function makeContentItemElement (elementContainer, owner) {
 		row3.appendChild(elementDescription);
 		elementContainer.appendChild(row3);
 	}
+	
+	if ("content" in owner) {
+		const row4 = document.createElement("div");
+		row4.className = "row4";
+		makeContentElement(row4, owner);
+		elementContainer.appendChild(row4);
+	}
 }
 
 function makeEditForm (form, owner, isNew=false, ownerparent = null) {
@@ -444,3 +459,18 @@ function makeEditForm (form, owner, isNew=false, ownerparent = null) {
 	form.appendChild(formButtons);
 
   }
+function hideShowContent(contentSection) {
+    const isHidden = Array.from(contentSection.children).some((sectionElement) =>
+        sectionElement.classList.contains("hidden")
+    );
+
+    Array.from(contentSection.children).forEach((sectionElement) => {
+        if (sectionElement.classList.contains("sectionelement")) {
+            if (isHidden) {
+                sectionElement.classList.remove("hidden");
+            } else {
+                sectionElement.classList.add("hidden");
+            }
+        }
+    });
+}

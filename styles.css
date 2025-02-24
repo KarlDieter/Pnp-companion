@@ -14,6 +14,10 @@
     box-sizing: border-box;
 }
 
+.characterheadline {
+	display : flex;
+}
+
 /* Styling for each section container */
 .sectionContainer {
     display: flex;
@@ -22,6 +26,11 @@
     border-radius: 8px;
     background-color: #f9f9f9;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.sectionelement {
+	border : 1px solid #ccc;
+	border-radius: 8px;
 }
 
 .sectionname h2 {
@@ -66,7 +75,6 @@ button {
 }
 
 button:hover {
-    background-color: #4cae4c;
     transform: scale(1.05);
 }
 
@@ -99,12 +107,6 @@ button:hover {
     border: 1px solid #ccc;
     border-radius: 8px;
     padding: 20px;
-    /* position: absolute;
-    z-index: 1000;
-    top: 20%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 300px; */
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
@@ -117,19 +119,22 @@ button:hover {
 .modbuttons {
     display: flex;
     flex-direction: column; /* Stack the buttons vertically */
-    gap: 5px; /* Reduce space between the buttons */
+    gap: 1px; /* Reduce space between the buttons */
     align-items: flex-start; /* Align buttons to the left */
 }
 
 .statIncreaseBt, .statDecreaseBt {
-    width: 25px;  /* Reduce the width of the buttons */
-    height: 25px; /* Reduce the height */
+    width: 20px;  /* Reduce the width of the buttons */
+    height: 10px; /* Reduce the height */
     font-size: 0.9em;  /* Slightly smaller text */
     padding: 0;
     line-height: 1;
-    background-color: #5cb85c; /* Green color */
     border-radius: 5px;
     transition: transform 0.2s ease-in-out;
+	display: flex;  /* Use flexbox for centering */
+    align-items: center;  /* Center vertically */
+    justify-content: center;  /* Center horizontally */
+    text-align: center;  /* Center text */
 }
 
 .statDecreaseBt, .deleteBt {
@@ -138,4 +143,8 @@ button:hover {
 
 .statIncreaseBt:hover, .statDecreaseBt:hover {
     transform: scale(1.1); /* Slight hover effect */
+}
+
+.hidden {
+	display : none;
 }
